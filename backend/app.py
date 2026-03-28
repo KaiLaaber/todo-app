@@ -7,7 +7,7 @@ def init_db():
     c = conn.cursor()
     c.execute('''
         CREATE TABLE IF NOT EXISTS tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER NOT NuLL,
             title TEXT NOT NULL,
             completed BOOLEAN NOT NULL DEFAULT 0
         )
@@ -60,6 +60,24 @@ def add_task():
     conn.close()
 
     return jsonify(data), 201
+
+@app.route('/tasks/<int:task_id>/toggle', methods=['PUT'])
+def toggle_task(task_id):
+    conn = sqlite3.connect('tasks.db')
+    c = conn.cursor()
+
+    c.execute('SELECT completed FROM tasks WHERE id = ?', (task_id,))
+    finishedTask = c.fetchone()
+
+    if finishedTask:
+        new_status = True if finishedTask[0] == False else False
+
+        c.execute('UPDATE tasks SET completed = ? WHERE id = ?', 
+                  (new_status, task_id))
+
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Task updated'}), 200
 
 @app.route('/tasks/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
