@@ -21,10 +21,9 @@ def add_task():
     data = request.get_json()
     task = {
         'id': task_id,
-        'title': data,
+        'title': data['title'],
         'completed': False
     }
-    print(f"Created task: {task['id']} - {task['title']}")
     tasks.append(task)
     task_id += 1
     return jsonify(task), 201
